@@ -24,5 +24,9 @@ services:
         tags:
             - { name: 'console.command', command: 'app:create-token' }
 
+    App\Command\CreateUserCommand:
+        tags:
+            - { name: 'console.command', command: 'app:create-user'}
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

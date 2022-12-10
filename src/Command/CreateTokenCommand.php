@@ -2,6 +2,8 @@
 
 namespace App\Command;
 
+use App\Entity\AccessToken;
+use App\Repository\AccessTokenRepository;
 use App\Repository\UserRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -12,7 +14,7 @@ class CreateTokenCommand extends Command
 {
     protected static $defaultName = 'app:create-token';
 
-    public function __construct(private UserRepository $userRepo)
+    public function __construct(private UserRepository $userRepo, private AccessTokenRepository $tokenRepo)
     {
         parent::__construct();
     }
@@ -40,7 +42,13 @@ class CreateTokenCommand extends Command
         }
 
         $tokenStr = $this->genToken();
-        $output->writeln('<info>Your token is '.$tokenStr.'</info>');
+        $token = new AccessToken();
+        $token->setAccessToken($tokenStr)
+            ->setUserId($user->getId())
+            ->setActiveUntil(time()+300);
+        $this->tokenRepo->save($token, true);
+
+        $output->writeln('<info>Your token is '.$tokenStr.' and will be active during next five minutes</info>');
 
         return Command::SUCCESS;
     }

@@ -19,6 +19,9 @@ class AccessToken
     #[ORM\Column]
     private ?int $userId = null;
 
+    #[ORM\Column]
+    private ?int $activeUntil = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -44,6 +47,18 @@ class AccessToken
     public function setUserId(int $userId): self
     {
         $this->userId = $userId;
+
+        return $this;
+    }
+
+    public function getActiveUntil(): ?int
+    {
+        return $this->activeUntil;
+    }
+
+    public function setActiveUntil(int $activeUntil): self
+    {
+        $this->activeUntil = $activeUntil;
 
         return $this;
     }
