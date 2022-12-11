@@ -42,7 +42,7 @@ class AccessTokenRepository extends ServiceEntityRepository
     public function findOneByValue(string $accessToken): ?AccessToken
     {
         return $this->createQueryBuilder('a')
-            ->andWhere('a.access_token = :token')
+            ->andWhere('a.accessToken = :token')
             ->setParameter('token', $accessToken)
             ->getQuery()
             ->getOneOrNullResult();
