@@ -16,21 +16,12 @@ class DataController extends AbstractController
     #[Route('/data/create', name: 'data_create')]
     public function create(Request $request, DataRepository $dataRepo, AccessTokenRepository $tokenRepo): Response
     {
+        dd('good');
         $memory = memory_get_usage();
         $startTime = new \DateTime('now');
 
         if ('GET' !== $request->getMethod() && 'POST' !== $request->getMethod())
             return $this->invalidMethodResponse();
-
-        $authToken = $request->headers->get('authorization');
-        if ($authToken === null)
-            return $this->invalidTokenResponse();
-
-        $tokenEntity = $tokenRepo->findOneByValue($authToken);
-        if ($tokenEntity === null || $tokenEntity->getActiveUntil() > time()) {
-            $tokenRepo->remove($tokenEntity, true);
-            return $this->expiredTokenResponse();
-        }
 
         $requestJsonData = json_decode($request->getContent(), true);
         if (empty($requestJsonData))
@@ -71,21 +62,5 @@ class DataController extends AbstractController
             'spent_memory' => $spentMemory,
             'created_entity_id' => $dataId
         ]))->setStatusCode(Response::HTTP_OK);
-    }
-
-    private function invalidTokenResponse(): Response
-    {
-        return (new JsonResponse([
-            'status_code' => Response::HTTP_FORBIDDEN,
-            'message' => 'request without access-token or with expired access-token'
-        ]))->setStatusCode(Response::HTTP_FORBIDDEN);
-    }
-
-    private function expiredTokenResponse()
-    {
-        return (new JsonResponse([
-            'status_code' => Response::HTTP_FORBIDDEN,
-            'message' => 'your access-token is expired. try to refresh it'
-        ]));
     }
 }
