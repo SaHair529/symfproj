@@ -10,13 +10,13 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Twig\Environment;
 
 class DataController extends AbstractController
 {
     #[Route('/data/create', name: 'data_create')]
     public function create(Request $request, DataRepository $dataRepo, AccessTokenRepository $tokenRepo): Response
     {
-        dd('good');
         $memory = memory_get_usage();
         $startTime = new \DateTime('now');
 
@@ -39,6 +39,36 @@ class DataController extends AbstractController
         return $this->successResponse($spentTime, $spentMemory.' bytes', $dataId);
     }
 
+    #[Route('/data/show', name: 'data_show')]
+    public function show(DataRepository $dataRepo, Environment $twig)
+    {
+        $dataEntities = $dataRepo->findAll();
+        foreach ($dataEntities as $dataEntity) {
+            $dataEntity->json = json_encode($dataEntity->getData(),
+                JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        }
+        return new Response($twig->render('data/index.html.twig', [
+            'data_entities' => $dataEntities
+        ]));
+    }
+
+    #[Route('/data/delete', name: 'data_delete')]
+    public function delete(Request $request, DataRepository $dataRepo)
+    {
+        $entityId = $request->query->get('entity_id');
+        if (null === $entityId)
+            return (new JsonResponse([
+                'message' => 'request parameter entity_id is missing',
+                'code' => '400'
+            ]))->setStatusCode(Response::HTTP_BAD_REQUEST);
+
+        $dataRepo->remove($dataRepo->find($entityId), true);
+        return (new JsonResponse([
+            'message' => 'ok',
+            'code' => '200'
+        ]))->setStatusCode(Response::HTTP_OK);
+    }
+
     private function invalidMethodResponse(): Response
     {
         return (new JsonResponse([
@@ -46,7 +76,6 @@ class DataController extends AbstractController
             'message' => 'request method is invalid'
         ]))->setStatusCode(Response::HTTP_FORBIDDEN);
     }
-
     private function invalidRequestDataResponse(): Response
     {
         return (new JsonResponse([
@@ -54,7 +83,6 @@ class DataController extends AbstractController
             'message' => 'empty or invalid request data'
         ]))->setStatusCode(Response::HTTP_BAD_REQUEST);
     }
-
     private function successResponse($spentTime, $spentMemory, $dataId): Response
     {
         return (new JsonResponse([

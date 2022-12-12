@@ -1,0 +1,8 @@
+.change_btn, .delete_btn {
+    cursor: pointer;
+}
+
+.change_btn:hover, .delete_btn:hover {
+    background: #FF8400;
+    color: #18171B;
+}
