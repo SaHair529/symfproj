@@ -78,6 +78,10 @@ class DataController extends AbstractController
     {
         $id = $request->query->get('id') ?? $request->request->get('id');
         $data = $request->query->get('data') ?? $request->request->get('data');
+
+        if ($id ?? $data === null)
+            return $this->redirectToRoute('data_show');
+
         $dataEntity = $dataRepo->find($id);
         $dataEntity->setData(json_decode($data, true));
         $dataRepo->save($dataEntity, true);
