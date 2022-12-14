@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Data{% endblock %}
+
+{% block body %}
+    
+    {% for data_entity in data_entities %}
+        <div class="data_entity" id="{{ data_entity.id }}" data-json="{{ data_entity.json }}">
+            {{ dump(data_entity.data) }}
+        </div>
+    {% endfor %}
+
+    {% block js %}
+        <script src="{{ asset('app.js') }}"></script>
+    {% endblock %}
+    {% block css %}
+        <link rel="stylesheet" href="{{ asset('style.css') }}">
+    {% endblock %}
+
+    <div class="change_data_window">
+        <form action="{{ path('data_change') }}" method="POST">
+            <input type="hidden" id="id" name="id">
+            <div><textarea name="data" id="data" cols="30" rows="10"></textarea></div>
+            <input type="submit" value="change">
+        </form>
+    </div>
+{% endblock %}

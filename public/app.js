@@ -32,6 +32,14 @@ function renderDeleteBtn()
 function addButtonClickListeners()
 {
     addDeleteButtonsClickListener()
+    addChangeButtonsClickListener()
+}
+function addChangeButtonsClickListener()
+{
+    let changeButtons = document.querySelectorAll('.change_btn')
+    for (let i = 0; i < changeButtons.length; i++) {
+        addChangeBtnClickListener(changeButtons[i])
+    }
 }
 function addDeleteButtonsClickListener()
 {
@@ -40,6 +48,25 @@ function addDeleteButtonsClickListener()
         addDeleteBtnClickListener(deleteButtons[i])
     }
 }
+
+function addChangeBtnClickListener(btn)
+{
+    btn.addEventListener('click', () => {
+        let dataEntityBlock, changeWindow, changeForm, dataEntityIdInput, dataTextArea
+
+        dataEntityBlock = btn.parentElement.parentElement
+        changeWindow = document.querySelector('.change_data_window')
+        changeForm = changeWindow.querySelector('form')
+        dataEntityIdInput = changeForm.querySelector('#id')
+        dataTextArea = changeForm.querySelector('#data')
+
+        dataEntityBlock.after(changeWindow)
+        changeWindow.classList.add('active')
+        dataEntityIdInput.value = dataEntityBlock.id
+        dataTextArea.textContent = dataEntityBlock.getAttribute('data-json')
+    })
+}
+
 function addDeleteBtnClickListener(btn)
 {
     btn.addEventListener('click', () => {

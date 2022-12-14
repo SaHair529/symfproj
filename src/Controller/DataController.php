@@ -3,9 +3,12 @@
 namespace App\Controller;
 
 use App\Entity\Data;
+use App\Form\ChangeDataFormType;
 use App\Repository\AccessTokenRepository;
 use App\Repository\DataRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,15 +43,16 @@ class DataController extends AbstractController
     }
 
     #[Route('/data/show', name: 'data_show')]
-    public function show(DataRepository $dataRepo, Environment $twig)
+    public function show(Request $request, DataRepository $dataRepo, Environment $twig)
     {
         $dataEntities = $dataRepo->findAll();
         foreach ($dataEntities as $dataEntity) {
             $dataEntity->json = json_encode($dataEntity->getData(),
                 JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         }
+
         return new Response($twig->render('data/index.html.twig', [
-            'data_entities' => $dataEntities
+            'data_entities' => $dataEntities,
         ]));
     }
 
@@ -67,6 +71,18 @@ class DataController extends AbstractController
             'message' => 'ok',
             'code' => '200'
         ]))->setStatusCode(Response::HTTP_OK);
+    }
+
+    #[Route('/data/change', name: 'data_change')]
+    public function change(Request $request, DataRepository $dataRepo)
+    {
+        $id = $request->query->get('id') ?? $request->request->get('id');
+        $data = $request->query->get('data') ?? $request->request->get('data');
+        $dataEntity = $dataRepo->find($id);
+        $dataEntity->setData(json_decode($data, true));
+        $dataRepo->save($dataEntity, true);
+
+        return $this->redirectToRoute('data_show');
     }
 
     private function invalidMethodResponse(): Response

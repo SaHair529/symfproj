@@ -6,3 +6,10 @@
     background: #FF8400;
     color: #18171B;
 }
+
+.change_data_window {
+    display: none;
+}
+.change_data_window.active {
+    display: block;
+}
